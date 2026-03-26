@@ -60,7 +60,8 @@ namespace LibShell {
             int whichTerms,
             Eigen::VectorXd* derivative, // positions, then thetas
             std::vector<Eigen::Triplet<double> >* hessian,
-            const HessianProjectType projType = HessianProjectType::kMaxZero);
+            const HessianProjectType projType = HessianProjectType::kMaxZero,
+            const std::vector<bool>* face_mask = nullptr);
 
         /*
          * Computes current fundamental forms for a given mesh. Can be used to initialize these forms from a given mesh rest state.

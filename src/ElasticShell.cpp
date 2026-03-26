@@ -63,7 +63,7 @@ namespace LibShell {
     {
         return elasticEnergy(mesh, curPos, extraDOFs, mat, restState,
             EnergyTerm::ET_BENDING | EnergyTerm::ET_STRETCHING,
-                             derivative, hessian, projType);
+                             derivative, hessian, projType, nullptr);
     }
 
     template <class SFF>
@@ -76,7 +76,8 @@ namespace LibShell {
         int whichTerms,
         Eigen::VectorXd* derivative, // positions, then thetas
         std::vector<Eigen::Triplet<double> >* hessian,
-        const HessianProjectType projType)
+        const HessianProjectType projType,
+        const std::vector<bool>* face_mask)
     {
         int nfaces = mesh.nFaces();
         int nedges = mesh.nEdges();
@@ -104,6 +105,7 @@ namespace LibShell {
         {
             for (int i = 0; i < nfaces; i++)
             {
+                if (face_mask && !(*face_mask)[i]) continue;
                 Eigen::Matrix<double, 1, 9> deriv;
                 Eigen::Matrix<double, 9, 9> hess;
                 result += mat.stretchingEnergy(mesh, curPos, restState, i, derivative ? &deriv : NULL, hessian ? &hess : NULL);
@@ -138,6 +140,7 @@ namespace LibShell {
             constexpr int nedgedofs = SFF::numExtraDOFs;
             for (int i = 0; i < nfaces; i++)
             {
+                if (face_mask && !(*face_mask)[i]) continue;
                 Eigen::Matrix<double, 1, 18 + 3 * nedgedofs> deriv;
                 Eigen::Matrix<double, 18 + 3 * nedgedofs, 18 + 3 * nedgedofs> hess;
                 result += mat.bendingEnergy(mesh, curPos, extraDOFs, restState, i, derivative ? &deriv : NULL, hessian ? &hess : NULL);
