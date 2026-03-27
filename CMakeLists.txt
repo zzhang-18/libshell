@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 4.0)
-cmake_policy(SET CMP0169 OLD)
+cmake_minimum_required(VERSION 3.14)
 project(libshell)
 
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 set(MSVC_RUNTIME "dynamic")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-include(libigl)
+# Only build libshell library when included as subdirectory
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 # Add your project files
 if(MSVC)
@@ -16,14 +16,6 @@ if(MSVC)
 endif()
 
 file(GLOB LIBFILES src/*.cpp src/SecondFundamentalForm/*.cpp src/MaterialModel/*.cpp)
-add_library(${PROJECT_NAME} STATIC ${LIBFILES} ${OPTFILES})
-target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
-
-install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_CURRENT_LIST_DIR}/lib)
-
-add_subdirectory(optimization)
-add_subdirectory(example)
-
-file(GLOB TESTFILES tests/*.cpp)
-add_executable(tests_${PROJECT_NAME} ${TESTFILES})
-target_link_libraries(tests_${PROJECT_NAME} ${PROJECT_NAME} Eigen3::Eigen)
+add_library(${PROJECT_NAME} STATIC ${LIBFILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
